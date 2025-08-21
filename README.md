@@ -86,6 +86,32 @@ Esta regla valida aspectos fundamentales de la semántica HTML5:
 </head>
 ```
 
+#### ✅ **Listas Semánticamente Correctas**
+```html
+<!-- ✅ SÍ: Lista no ordenada -->
+<ul>
+    <li>Elemento 1</li>
+    <li>Elemento 2</li>
+    <li>Elemento 3</li>
+</ul>
+
+<!-- ✅ SÍ: Lista ordenada -->
+<ol>
+    <li>Primer paso</li>
+    <li>Segundo paso</li>
+    <li>Tercer paso</li>
+</ol>
+
+<!-- ❌ NO: LI sueltos -->
+<li>Elemento sin lista</li>
+<li>Otro elemento suelto</li>
+
+<!-- ❌ NO: LI en contenedores incorrectos -->
+<div>
+    <li>Elemento mal ubicado</li>
+</div>
+```
+
 #### ✅ **Orden Lógico de Secciones**
 ```html
 <header>...</header>  <!-- 1º -->
@@ -113,7 +139,7 @@ Esta regla valida aspectos fundamentales de la semántica HTML5:
 2. **Etiquetas cerradas**: Todas las etiquetas deben cerrarse correctamente (-3 pts)
 3. **Secuencia lógica semántica**: Orden correcto h1→h2→h3, header con h1, nav sin encabezados (-3 pts)
 4. **Único H1**: Solo puede haber un elemento `<h1>` por documento
-5. **LI dentro de UL**: Todos los `<li>` deben estar dentro de `<ul>`
+5. **LI dentro de UL o OL**: Todos los `<li>` deben estar dentro de `<ul>` o `<ol>`
 6. **href solo en A**: El atributo `href` solo en elementos `<a>`
 7. **src solo en IMG**: El atributo `src` solo en elementos `<img>`
 8. **Imágenes con alt**: Todas las imágenes deben tener atributo `alt` declarado
@@ -229,6 +255,20 @@ corrector-web/
                 <h3>Artículo</h3>
                 <p>Contenido del artículo...</p>
                 <img src="imagen.jpg" alt="Descripción">
+                
+                <!-- Lista no ordenada -->
+                <ul>
+                    <li>Característica A</li>
+                    <li>Característica B</li>
+                    <li>Característica C</li>
+                </ul>
+                
+                <!-- Lista ordenada -->
+                <ol>
+                    <li>Primer paso del proceso</li>
+                    <li>Segundo paso del proceso</li>
+                    <li>Tercer paso del proceso</li>
+                </ol>
             </article>
         </section>
         

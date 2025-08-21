@@ -45,8 +45,8 @@ const VALIDATION_RULES = {
         },
 
         liInUl: {
-            id: 'li-in-ul',
-            descripcion: 'LI dentro de UL',
+            id: 'li-in-ul-ol',
+            descripcion: 'LI dentro de UL o OL',
             tipo: 'error',
             puntaje_ok: 1,
             puntaje_error: -2,
@@ -56,7 +56,7 @@ const VALIDATION_RULES = {
                 
                 allLi.forEach(li => {
                     const parent = li.parentElement;
-                    if (!parent || parent.tagName !== 'UL') {
+                    if (!parent || (parent.tagName !== 'UL' && parent.tagName !== 'OL')) {
                         invalidLi.push(li);
                     }
                 });
@@ -65,15 +65,15 @@ const VALIDATION_RULES = {
                     return {
                         passed: true,
                         matches: Array.from(allLi),
-                        message: `Correcto: Todos los elementos LI (${allLi.length}) están dentro de elementos UL.`,
+                        message: `Correcto: Todos los elementos LI (${allLi.length}) están dentro de elementos UL o OL.`,
                         suggestion: null
                     };
                 } else {
                     return {
                         passed: false,
                         matches: invalidLi,
-                        message: `Error: ${invalidLi.length} elementos LI no están dentro de UL.`,
-                        suggestion: 'Envuelve todos los elementos <li> dentro de elementos <ul>. Los <li> no pueden estar sueltos o dentro de <ol>.'
+                        message: `Error: ${invalidLi.length} elementos LI no están dentro de UL o OL.`,
+                        suggestion: 'Envuelve todos los elementos <li> dentro de elementos <ul> (listas no ordenadas) o <ol> (listas ordenadas). Los <li> no pueden estar sueltos.'
                     };
                 }
             }
