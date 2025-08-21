@@ -1102,6 +1102,64 @@ const VALIDATION_RULES = {
                     };
                 }
             }
+        },
+
+        noInlineStyles: {
+            id: 'no-inline-styles',
+            descripcion: 'Prohibir estilos inline y bloques <style>',
+            tipo: 'error',
+            puntaje_ok: 1,
+            puntaje_error: -2,
+            detectar: function(document, rawHtml) {
+                const elementsWithStyle = document.querySelectorAll('[style]');
+                const styleBlocks = document.querySelectorAll('style');
+                
+                const totalViolations = elementsWithStyle.length + styleBlocks.length;
+                
+                if (totalViolations === 0) {
+                    return {
+                        passed: true,
+                        matches: [],
+                        message: 'Correcto: No se encontraron estilos inline ni bloques <style>.',
+                        suggestion: null
+                    };
+                } else {
+                    const violations = [];
+                    const problemElements = [];
+                    
+                    // Analizar atributos style
+                    if (elementsWithStyle.length > 0) {
+                        const elementTypes = {};
+                        elementsWithStyle.forEach(element => {
+                            const tagName = element.tagName.toLowerCase();
+                            if (!elementTypes[tagName]) {
+                                elementTypes[tagName] = 0;
+                            }
+                            elementTypes[tagName]++;
+                            problemElements.push(element);
+                        });
+                        
+                        const typesList = Object.entries(elementTypes)
+                            .map(([tag, count]) => `${count} ${tag}`)
+                            .join(', ');
+                        
+                        violations.push(`${elementsWithStyle.length} elementos con atributo style (${typesList})`);
+                    }
+                    
+                    // Analizar bloques <style>
+                    if (styleBlocks.length > 0) {
+                        violations.push(`${styleBlocks.length} bloque${styleBlocks.length > 1 ? 's' : ''} <style>`);
+                        problemElements.push(...styleBlocks);
+                    }
+                    
+                    return {
+                        passed: false,
+                        matches: problemElements,
+                        message: `Error: ${violations.join(' y ')}.`,
+                        suggestion: 'Elimina todos los atributos style y bloques <style>. Usa únicamente archivos CSS externos enlazados con <link rel="stylesheet" href="styles.css">.'
+                    };
+                }
+            }
         }
     }
 };

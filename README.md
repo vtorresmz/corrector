@@ -3,11 +3,11 @@
 Un valida## 🎯 Sistema de Puntaje
 
 - **Aprobación**: ### Advertencias (-1 punto)
-17. **Etiquetas semánticas**: Preferir elementos semánticos vs. `<div>`/`<span>`
-18. **Nombres de archivo**: Solo minúsculas, guiones, sin espacios ni caracteres especiales
-19. **Tamaño de imágenes**: Máximo 500KB por imagen
-20. **Nombres de documentos**: Mismas reglas para archivos HTML referenciados
-21. **Meta viewport**: Debe incluir viewport responsive- **Acierto**: +1 punto por regla cumplida
+18. **Etiquetas semánticas**: Preferir elementos semánticos vs. `<div>`/`<span>`
+19. **Nombres de archivo**: Solo minúsculas, guiones, sin espacios ni caracteres especiales
+20. **Tamaño de imágenes**: Máximo 500KB por imagen
+21. **Nombres de documentos**: Mismas reglas para archivos HTML referenciados
+22. **Meta viewport**: Debe incluir viewport responsive- **Acierto**: +1 punto por regla cumplida
 - **Error crítico**: -2 a -5 puntos
 - **Advertencia**: -1 punto
 - **Estructura mínima**: +2 puntos (por ser fundamental)
@@ -62,6 +62,30 @@ Esta regla valida aspectos fundamentales de la semántica HTML5:
 <img src="mapa-ubicacion.jpg" alt="">
 ```
 
+#### ✅ **Separación de Contenido y Presentación**
+```html
+<!-- ✅ SÍ: Solo CSS externo -->
+<head>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<!-- ✅ SÍ: HTML limpio con clases -->
+<div class="mi-contenedor">Contenido</div>
+<p class="destacado">Párrafo importante</p>
+
+<!-- ❌ NO: Estilos inline -->
+<div style="color: blue; font-size: 16px;">Contenido</div>
+<p style="margin: 10px;">Párrafo</p>
+
+<!-- ❌ NO: Bloques <style> en el HTML -->
+<head>
+    <style>
+        .mi-contenedor { color: blue; }
+        .destacado { font-weight: bold; }
+    </style>
+</head>
+```
+
 #### ✅ **Orden Lógico de Secciones**
 ```html
 <header>...</header>  <!-- 1º -->
@@ -96,11 +120,12 @@ Esta regla valida aspectos fundamentales de la semántica HTML5:
 9. **Botones en formularios**: Los `<button>` deben estar dentro de `<form>`
 10. **Sin tablas**: Prohibido usar `<table>`, `<thead>`, `<tbody>`, `<tfoot>`, `<tr>`, `<td>`, `<th>`
 11. **Sin etiquetas visuales**: Prohibido `<u>`, `<b>`, `<i>`
-12. **Estructura mínima**: Debe contener `<header>`, `<nav>`, `<main>`, `<footer>`
-13. **Estructura NAV**: Los elementos `<nav>` deben seguir la estructura `nav > ul > li > a`
-14. **Título del documento**: Debe existir `<title>` en `<head>`
-15. **Codificación UTF-8**: Debe tener `<meta charset="UTF-8">`
-16. **Controles multimedia**: `<audio>` y `<video>` deben tener `controls`, `<video>` debe tener `muted`
+12. **Sin estilos inline**: Prohibido usar atributo `style` y bloques `<style>` en HTML
+13. **Estructura mínima**: Debe contener `<header>`, `<nav>`, `<main>`, `<footer>`
+14. **Estructura NAV**: Los elementos `<nav>` deben seguir la estructura `nav > ul > li > a`
+15. **Título del documento**: Debe existir `<title>` en `<head>`
+16. **Codificación UTF-8**: Debe tener `<meta charset="UTF-8">`
+17. **Controles multimedia**: `<audio>` y `<video>` deben tener `controls`, `<video>` debe tener `muted`
 
 ### Advertencias (-1 punto)
 15. **Etiquetas semánticas**: Preferir elementos semánticos vs. `<div>`/`<span>`
@@ -228,6 +253,11 @@ corrector-web/
 <html>
 <head>
     <title></title>
+    <!-- Error: Bloque <style> en HTML -->
+    <style>
+        .error { color: red; }
+        .centrado { text-align: center; }
+    </style>
 </head>
 <body>
     <!-- Error: Secuencia de encabezados incorrecta -->
@@ -273,6 +303,11 @@ corrector-web/
     
     <b>Texto en negrita</b>
     <i>Texto en cursiva</i>
+    
+    <!-- Error: Estilos inline -->
+    <div style="color: red; font-size: 18px;">Contenido con estilo inline</div>
+    <p style="margin: 20px;">Párrafo con margen inline</p>
+    <h2 style="text-align: center;">Título centrado con estilo inline</h2>
     
     <!-- Error: Imágenes sin alt -->
     <img src="imagen1.jpg">
