@@ -1,6 +1,75 @@
 # Corrector de Código HTML/CSS
 
-Un validador de código HTML/CSS diseñado específicamente para la asignatura "Lenguaje Semántico y Hojas de Estilo". Permite a los estudiantes analizar su código y recibir feedback inmediato sobre errores y aciertos según reglas pedagógicas específicas.
+Un valida## 🎯 Sistema de Puntaje
+
+- **Aprobación**: ### Advertencias (-1 punto)
+17. **Etiquetas semánticas**: Preferir elementos semánticos vs. `<div>`/`<span>`
+18. **Nombres de archivo**: Solo minúsculas, guiones, sin espacios ni caracteres especiales
+19. **Tamaño de imágenes**: Máximo 500KB por imagen
+20. **Nombres de documentos**: Mismas reglas para archivos HTML referenciados
+21. **Meta viewport**: Debe incluir viewport responsive- **Acierto**: +1 punto por regla cumplida
+- **Error crítico**: -2 a -5 puntos
+- **Advertencia**: -1 punto
+- **Estructura mínima**: +2 puntos (por ser fundamental)
+- **Secuencia semántica**: +2 puntos (por ser compleja)
+
+### 📚 Regla de Secuencia Lógica Semántica
+
+Esta regla valida aspectos fundamentales de la semántica HTML5:
+
+#### ✅ **Jerarquía de Encabezados Correcta**
+```html
+<h1>Título Principal</h1>
+<h2>Subtítulo</h2>
+<h3>Sub-subtítulo</h3>
+<!-- ❌ NO: <h1> → <h3> (saltar h2) -->
+<!-- ❌ NO: <h2> antes de <h1> -->
+```
+
+#### ✅ **Header Semánticamente Correcto**
+```html
+<header>
+    <h1>Título del sitio</h1>  <!-- ✅ SÍ: h1 en header -->
+    <!-- ❌ NO: <h2> en lugar de <h1> -->
+    <!-- ❌ NO: múltiples encabezados en header -->
+</header>
+```
+
+#### ✅ **Nav Solo para Navegación**
+```html
+<nav>
+    <!-- ✅ SÍ: solo enlaces de navegación -->
+    <ul>
+        <li><a href="inicio.html">Inicio</a></li>
+    </ul>
+    <!-- ❌ NO: <h2>, <h3>, etc. en nav -->
+    <!-- ❌ NO: <li> sin <ul> padre -->
+</nav>
+```
+
+#### ✅ **Imágenes con Atributo Alt**
+```html
+<!-- ✅ SÍ: Imagen informativa con descripción -->
+<img src="grafico-ventas.png" alt="Gráfico que muestra el crecimiento de ventas del 25% en 2024">
+
+<!-- ✅ SÍ: Imagen decorativa (alt vacío) -->
+<img src="decoracion.png" alt="">
+
+<!-- ❌ NO: Sin atributo alt -->
+<img src="importante.jpg">
+
+<!-- ❌ NO: Alt vacío en imagen informativa -->
+<img src="mapa-ubicacion.jpg" alt="">
+```
+
+#### ✅ **Orden Lógico de Secciones**
+```html
+<header>...</header>  <!-- 1º -->
+<nav>...</nav>        <!-- 2º -->
+<main>...</main>      <!-- 3º -->
+<aside>...</aside>    <!-- Opcional, flexible -->
+<footer>...</footer>  <!-- Último -->
+```código HTML/CSS diseñado específicamente para la asignatura "Lenguaje Semántico y Hojas de Estilo". Permite a los estudiantes analizar su código y recibir feedback inmediato sobre errores y aciertos según reglas pedagógicas específicas.
 
 ## 🚀 Características
 
@@ -18,18 +87,20 @@ Un validador de código HTML/CSS diseñado específicamente para la asignatura "
 ### Errores Críticos (-2 a -5 puntos)
 1. **Estructura HTML básica**: DOCTYPE, html, head, body correctos (-5 pts)
 2. **Etiquetas cerradas**: Todas las etiquetas deben cerrarse correctamente (-3 pts)
-3. **Único H1**: Solo puede haber un elemento `<h1>` por documento
-4. **LI dentro de UL**: Todos los `<li>` deben estar dentro de `<ul>`
-5. **href solo en A**: El atributo `href` solo en elementos `<a>`
-6. **src solo en IMG**: El atributo `src` solo en elementos `<img>`
-7. **Botones en formularios**: Los `<button>` deben estar dentro de `<form>`
-8. **Sin tablas**: Prohibido usar `<table>`, `<thead>`, `<tbody>`, `<tfoot>`, `<tr>`, `<td>`, `<th>`
-9. **Sin etiquetas visuales**: Prohibido `<u>`, `<b>`, `<i>`
-10. **Estructura mínima**: Debe contener `<header>`, `<nav>`, `<main>`, `<footer>`
-11. **Estructura NAV**: Los elementos `<nav>` deben seguir la estructura `nav > ul > li > a`
-12. **Título del documento**: Debe existir `<title>` en `<head>`
-13. **Codificación UTF-8**: Debe tener `<meta charset="UTF-8">`
-14. **Controles multimedia**: `<audio>` y `<video>` deben tener `controls`, `<video>` debe tener `muted`
+3. **Secuencia lógica semántica**: Orden correcto h1→h2→h3, header con h1, nav sin encabezados (-3 pts)
+4. **Único H1**: Solo puede haber un elemento `<h1>` por documento
+5. **LI dentro de UL**: Todos los `<li>` deben estar dentro de `<ul>`
+6. **href solo en A**: El atributo `href` solo en elementos `<a>`
+7. **src solo en IMG**: El atributo `src` solo en elementos `<img>`
+8. **Imágenes con alt**: Todas las imágenes deben tener atributo `alt` declarado
+9. **Botones en formularios**: Los `<button>` deben estar dentro de `<form>`
+10. **Sin tablas**: Prohibido usar `<table>`, `<thead>`, `<tbody>`, `<tfoot>`, `<tr>`, `<td>`, `<th>`
+11. **Sin etiquetas visuales**: Prohibido `<u>`, `<b>`, `<i>`
+12. **Estructura mínima**: Debe contener `<header>`, `<nav>`, `<main>`, `<footer>`
+13. **Estructura NAV**: Los elementos `<nav>` deben seguir la estructura `nav > ul > li > a`
+14. **Título del documento**: Debe existir `<title>` en `<head>`
+15. **Codificación UTF-8**: Debe tener `<meta charset="UTF-8">`
+16. **Controles multimedia**: `<audio>` y `<video>` deben tener `controls`, `<video>` debe tener `muted`
 
 ### Advertencias (-1 punto)
 15. **Etiquetas semánticas**: Preferir elementos semánticos vs. `<div>`/`<span>`
@@ -159,8 +230,20 @@ corrector-web/
     <title></title>
 </head>
 <body>
+    <!-- Error: Secuencia de encabezados incorrecta -->
+    <h2>Subtítulo antes de h1</h2>
     <h1>Primer Título</h1>
     <h1>Segundo Título</h1>
+    
+    <!-- Error: Header mal estructurado -->
+    <header>
+        <h2>Debería ser h1</h2>
+        <nav>
+            <h3>Encabezado en nav (incorrecto)</h3>
+            <li>Item sin ul</li>
+            <li>Otro item sin ul</li>
+        </nav>
+    </header>
     
     <!-- Error: NAV mal estructurado -->
     <nav>
@@ -168,12 +251,15 @@ corrector-web/
         <a href="acerca.html">Acerca</a>
     </nav>
     
-    <!-- Error: NAV sin UL -->
-    <nav>
-        <div>
-            <a href="enlace.html">Enlace</a>
-        </div>
-    </nav>
+    <!-- Error: Orden semántico incorrecto -->
+    <footer>
+        <p>Footer antes de main</p>
+    </footer>
+    
+    <main>
+        <!-- Error: Salto de nivel h1 → h3 -->
+        <h3>Debería ser h2</h3>
+    </main>
     
     <li>Item sin lista</li>
     
@@ -188,7 +274,11 @@ corrector-web/
     <b>Texto en negrita</b>
     <i>Texto en cursiva</i>
     
+    <!-- Error: Imágenes sin alt -->
+    <img src="imagen1.jpg">
+    <img src="imagen2.png" alt="">
     <img>
+    
     <audio src="audio.mp3"></audio>
     <video src="video.mp4"></video>
 </body>

@@ -826,6 +826,282 @@ const VALIDATION_RULES = {
                     }
                 }
             }
+        },
+
+        logicalSequence: {
+            id: 'logical-sequence',
+            descripcion: 'Secuencia lógica y semántica HTML5',
+            tipo: 'error',
+            puntaje_ok: 2,
+            puntaje_error: -3,
+            detectar: function(document, rawHtml) {
+                const issues = [];
+                const problemElements = [];
+                
+                // 1. Verificar secuencia lógica de encabezados (h1, h2, h3, etc.)
+                const headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
+                const headingIssues = this.validateHeadingSequence(headings);
+                issues.push(...headingIssues.issues);
+                problemElements.push(...headingIssues.elements);
+                
+                // 2. Verificar que header contenga h1 (no h2, h3, etc.)
+                const headerIssues = this.validateHeaderContent(document);
+                issues.push(...headerIssues.issues);
+                problemElements.push(...headerIssues.elements);
+                
+                // 3. Verificar que nav no contenga encabezados (h1-h6)
+                const navIssues = this.validateNavContent(document);
+                issues.push(...navIssues.issues);
+                problemElements.push(...navIssues.elements);
+                
+                // 4. Verificar que nav contenga ul > li (no li sueltos)
+                const navStructureIssues = this.validateNavStructureBasic(document);
+                issues.push(...navStructureIssues.issues);
+                problemElements.push(...navStructureIssues.elements);
+                
+                // 5. Verificar orden semántico de secciones
+                const sectionIssues = this.validateSectionOrder(document);
+                issues.push(...sectionIssues.issues);
+                problemElements.push(...sectionIssues.elements);
+                
+                if (issues.length === 0) {
+                    return {
+                        passed: true,
+                        matches: [],
+                        message: 'Correcto: La secuencia lógica y semántica es adecuada.',
+                        suggestion: null
+                    };
+                } else {
+                    return {
+                        passed: false,
+                        matches: problemElements,
+                        message: `Error: ${issues.length} problemas de secuencia semántica detectados: ${issues.slice(0, 2).join(', ')}${issues.length > 2 ? '...' : ''}.`,
+                        suggestion: 'Revisa la jerarquía de encabezados (h1→h2→h3), que header contenga h1, que nav no tenga encabezados y use ul>li, y que las secciones estén en orden lógico.'
+                    };
+                }
+            },
+            
+            validateHeadingSequence: function(headings) {
+                const issues = [];
+                const problemElements = [];
+                let lastLevel = 0;
+                let hasH1 = false;
+                
+                headings.forEach((heading, index) => {
+                    const currentLevel = parseInt(heading.tagName.substring(1));
+                    
+                    if (currentLevel === 1) {
+                        hasH1 = true;
+                        if (index > 0 && lastLevel > 0) {
+                            issues.push('h1 debe ser el primer encabezado del documento');
+                            problemElements.push(heading);
+                        }
+                    } else {
+                        // Verificar que no haya saltos de nivel (ej: h1 → h3)
+                        if (lastLevel > 0 && currentLevel > lastLevel + 1) {
+                            issues.push(`salto de nivel incorrecto: h${lastLevel} → h${currentLevel}`);
+                            problemElements.push(heading);
+                        }
+                        
+                        // Verificar que no haya h2, h3, etc. antes de h1
+                        if (!hasH1 && currentLevel > 1) {
+                            issues.push(`h${currentLevel} antes de h1 (secuencia incorrecta)`);
+                            problemElements.push(heading);
+                        }
+                    }
+                    
+                    lastLevel = currentLevel;
+                });
+                
+                return { issues, elements: problemElements };
+            },
+            
+            validateHeaderContent: function(document) {
+                const issues = [];
+                const problemElements = [];
+                const headers = document.querySelectorAll('header');
+                
+                headers.forEach(header => {
+                    const h1InHeader = header.querySelector('h1');
+                    const otherHeadings = header.querySelectorAll('h2, h3, h4, h5, h6');
+                    
+                    if (!h1InHeader && otherHeadings.length > 0) {
+                        issues.push('header contiene encabezados pero no h1');
+                        problemElements.push(...otherHeadings);
+                    }
+                    
+                    if (otherHeadings.length > 0 && h1InHeader) {
+                        issues.push('header no debe contener h2, h3, etc. además de h1');
+                        problemElements.push(...otherHeadings);
+                    }
+                });
+                
+                return { issues, elements: problemElements };
+            },
+            
+            validateNavContent: function(document) {
+                const issues = [];
+                const problemElements = [];
+                const navs = document.querySelectorAll('nav');
+                
+                navs.forEach(nav => {
+                    const headingsInNav = nav.querySelectorAll('h1, h2, h3, h4, h5, h6');
+                    
+                    if (headingsInNav.length > 0) {
+                        issues.push('nav no debe contener encabezados (h1-h6)');
+                        problemElements.push(...headingsInNav);
+                    }
+                });
+                
+                return { issues, elements: problemElements };
+            },
+            
+            validateNavStructureBasic: function(document) {
+                const issues = [];
+                const problemElements = [];
+                const navs = document.querySelectorAll('nav');
+                
+                navs.forEach(nav => {
+                    // Verificar li directos en nav (sin ul)
+                    const directLis = Array.from(nav.children).filter(child => child.tagName === 'LI');
+                    if (directLis.length > 0) {
+                        issues.push('nav contiene li sin ul padre');
+                        problemElements.push(...directLis);
+                    }
+                    
+                    // Verificar que tenga al menos un ul
+                    const uls = nav.querySelectorAll('ul');
+                    const lis = nav.querySelectorAll('li');
+                    
+                    if (lis.length > 0 && uls.length === 0) {
+                        issues.push('nav con elementos li pero sin ul');
+                        problemElements.push(...lis);
+                    }
+                });
+                
+                return { issues, elements: problemElements };
+            },
+            
+            validateSectionOrder: function(document) {
+                const issues = [];
+                const problemElements = [];
+                const body = document.querySelector('body');
+                
+                if (!body) return { issues, elements: problemElements };
+                
+                const semanticElements = Array.from(body.children).filter(child => 
+                    ['HEADER', 'NAV', 'MAIN', 'ASIDE', 'FOOTER'].includes(child.tagName)
+                );
+                
+                // Verificar orden lógico esperado
+                const expectedOrder = ['HEADER', 'NAV', 'MAIN', 'FOOTER'];
+                const foundOrder = semanticElements.map(el => el.tagName);
+                
+                // Verificar que main no esté antes de header/nav
+                const mainIndex = foundOrder.indexOf('MAIN');
+                const headerIndex = foundOrder.indexOf('HEADER');
+                const navIndex = foundOrder.indexOf('NAV');
+                
+                if (mainIndex !== -1) {
+                    if (headerIndex !== -1 && mainIndex < headerIndex) {
+                        issues.push('main aparece antes de header');
+                        problemElements.push(semanticElements.find(el => el.tagName === 'MAIN'));
+                    }
+                    
+                    if (navIndex !== -1 && mainIndex < navIndex) {
+                        issues.push('main aparece antes de nav');
+                        problemElements.push(semanticElements.find(el => el.tagName === 'MAIN'));
+                    }
+                }
+                
+                // Verificar que footer esté al final
+                const footerIndex = foundOrder.indexOf('FOOTER');
+                if (footerIndex !== -1 && footerIndex < foundOrder.length - 1) {
+                    const elementsAfterFooter = foundOrder.slice(footerIndex + 1);
+                    if (elementsAfterFooter.some(tag => tag !== 'ASIDE')) {
+                        issues.push('footer debe ir al final del documento');
+                        problemElements.push(semanticElements.find(el => el.tagName === 'FOOTER'));
+                    }
+                }
+                
+                return { issues, elements: problemElements };
+            }
+        },
+
+        imageAlt: {
+            id: 'image-alt',
+            descripcion: 'Imágenes con atributo alt',
+            tipo: 'error',
+            puntaje_ok: 1,
+            puntaje_error: -2,
+            detectar: function(document, rawHtml) {
+                const images = document.querySelectorAll('img');
+                const imagesWithoutAlt = [];
+                const imagesWithEmptyAlt = [];
+                const validImages = [];
+                
+                if (images.length === 0) {
+                    return {
+                        passed: true,
+                        matches: [],
+                        message: 'No se encontraron imágenes para validar.',
+                        suggestion: null
+                    };
+                }
+                
+                images.forEach(img => {
+                    const altAttribute = img.getAttribute('alt');
+                    
+                    if (altAttribute === null) {
+                        // No tiene atributo alt
+                        imagesWithoutAlt.push(img);
+                    } else if (altAttribute.trim() === '') {
+                        // Tiene alt pero está vacío (esto es válido para imágenes decorativas)
+                        // Pero vamos a advertir si parece que debería tener descripción
+                        const src = img.getAttribute('src') || '';
+                        const hasDescriptiveName = /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(src);
+                        
+                        if (hasDescriptiveName) {
+                            imagesWithEmptyAlt.push(img);
+                        } else {
+                            validImages.push(img);
+                        }
+                    } else {
+                        // Tiene alt con contenido
+                        validImages.push(img);
+                    }
+                });
+                
+                const totalProblems = imagesWithoutAlt.length + imagesWithEmptyAlt.length;
+                
+                if (totalProblems === 0) {
+                    return {
+                        passed: true,
+                        matches: validImages,
+                        message: `Correcto: Todas las imágenes (${images.length}) tienen atributo alt adecuado.`,
+                        suggestion: null
+                    };
+                } else {
+                    const problemImages = [...imagesWithoutAlt, ...imagesWithEmptyAlt];
+                    let message = '';
+                    
+                    if (imagesWithoutAlt.length > 0) {
+                        message += `${imagesWithoutAlt.length} imágenes sin atributo alt`;
+                    }
+                    
+                    if (imagesWithEmptyAlt.length > 0) {
+                        if (message) message += ', ';
+                        message += `${imagesWithEmptyAlt.length} imágenes con alt vacío`;
+                    }
+                    
+                    return {
+                        passed: false,
+                        matches: problemImages,
+                        message: `Error: ${message}.`,
+                        suggestion: 'Todas las imágenes deben tener atributo alt. Usa alt="" solo para imágenes puramente decorativas, o alt="descripción" para imágenes informativas.'
+                    };
+                }
+            }
         }
     }
 };
