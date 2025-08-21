@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Corrector de Código HTML/CSS - Lenguaje Semántico</title>
+    
+    <!-- Bootstrap 5.3 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- FontAwesome para iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Estilos personalizados -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container-fluid">
+        <!-- Header -->
+        <header class="bg-primary text-white p-3 mb-4">
+            <div class="row align-items-center">
+                <div class="col">
+                    <h1 class="h3 mb-0">
+                        <i class="fas fa-code me-2"></i>
+                        Corrector de Código HTML/CSS
+                    </h1>
+                    <small class="text-light">Asignatura: Lenguaje Semántico y Hojas de Estilo</small>
+                </div>
+                <div class="col-auto">
+                    <button class="btn btn-outline-light btn-sm" id="btnInfo" data-bs-toggle="modal" data-bs-target="#infoModal">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Ayuda
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main content -->
+        <main>
+            <div class="row">
+                <!-- Panel izquierdo: Editor -->
+                <div class="col-lg-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">
+                                <i class="fas fa-edit me-2"></i>
+                                Editor de Código
+                            </h5>
+                            <div class="btn-group btn-group-sm">
+                                <button class="btn btn-outline-secondary" id="btnClear">
+                                    <i class="fas fa-trash me-1"></i>
+                                    Limpiar
+                                </button>
+                                <button class="btn btn-primary" id="btnAnalyze">
+                                    <span class="spinner-border spinner-border-sm d-none me-2" role="status" aria-hidden="true"></span>
+                                    <i class="fas fa-search me-1"></i>
+                                    Analizar
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body p-0">
+                            <textarea 
+                                id="codeInput" 
+                                class="form-control border-0" 
+                                placeholder="Pega aquí tu código HTML (y CSS inline si tienes)..."
+                                rows="20"
+                                style="resize: vertical; min-height: 500px; font-family: 'Courier New', monospace; font-size: 14px;"
+                            ></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Visor de código con resaltado -->
+                    <div class="card mt-3 d-none" id="codeViewer">
+                        <div class="card-header">
+                            <h6 class="mb-0">
+                                <i class="fas fa-eye me-2"></i>
+                                Código con Errores Resaltados
+                            </h6>
+                        </div>
+                        <div class="card-body p-0">
+                            <div id="highlightedCode" class="code-viewer"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Panel derecho: Resultados -->
+                <div class="col-lg-6">
+                    <!-- Estado inicial -->
+                    <div id="emptyState" class="text-center py-5">
+                        <i class="fas fa-code-branch fa-3x text-muted mb-3"></i>
+                        <h4 class="text-muted">Listo para analizar</h4>
+                        <p class="text-muted">Pega tu código HTML en el editor y presiona "Analizar" para comenzar la validación.</p>
+                    </div>
+
+                    <!-- Resultados -->
+                    <div id="resultsContainer" class="d-none">
+                        <!-- Resumen de puntaje -->
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-chart-bar me-2"></i>
+                                    Resumen de Evaluación
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="text-center">
+                                            <div id="scoreDisplay" class="display-4 fw-bold mb-2">0</div>
+                                            <div class="progress mb-2" style="height: 10px;">
+                                                <div id="scoreProgress" class="progress-bar" role="progressbar" style="width: 0%"></div>
+                                            </div>
+                                            <div id="scoreStatus" class="badge bg-secondary">Sin evaluar</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="row text-center">
+                                            <div class="col-6">
+                                                <div id="passedCount" class="h4 text-success mb-0">0</div>
+                                                <small class="text-muted">Aprobadas</small>
+                                            </div>
+                                            <div class="col-6">
+                                                <div id="failedCount" class="h4 text-danger mb-0">0</div>
+                                                <small class="text-muted">Fallidas</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Gráfico -->
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-chart-pie me-2"></i>
+                                    Distribución de Resultados
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="resultsChart" width="400" height="200"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Tabla de hallazgos -->
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-list me-2"></i>
+                                    Hallazgos Detallados
+                                </h6>
+                                <div class="btn-group btn-group-sm">
+                                    <button class="btn btn-outline-success btn-sm" id="btnDownloadReport">
+                                        <i class="fas fa-download me-1"></i>
+                                        Descargar JSON
+                                    </button>
+                                    <button class="btn btn-outline-info btn-sm" id="btnCopyFeedback">
+                                        <i class="fas fa-copy me-1"></i>
+                                        Copiar Feedback
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="table-responsive">
+                                    <table class="table table-sm mb-0" id="findingsTable">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th width="80">Tipo</th>
+                                                <th>Regla</th>
+                                                <th>Mensaje</th>
+                                                <th width="80">Línea</th>
+                                                <th width="60">Puntos</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal de información -->
+    <div class="modal fade" id="infoModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Información del Corrector
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <h6>¿Cómo funciona?</h6>
+                    <ol>
+                        <li>Pega tu código HTML (y CSS inline si tienes) en el editor</li>
+                        <li>Presiona "Analizar" para validar el código</li>
+                        <li>Revisa los resultados en el panel derecho</li>
+                        <li>Haz clic en los hallazgos para ver el código resaltado</li>
+                    </ol>
+
+                    <h6 class="mt-4">Reglas de Validación</h6>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <ul class="list-unstyled small">
+                                <li><i class="fas fa-check text-success me-1"></i> Único H1 por documento</li>
+                                <li><i class="fas fa-check text-success me-1"></i> LI dentro de UL</li>
+                                <li><i class="fas fa-check text-success me-1"></i> href solo en etiquetas A</li>
+                                <li><i class="fas fa-check text-success me-1"></i> src solo en IMG</li>
+                                <li><i class="fas fa-check text-success me-1"></i> Botones dentro de formularios</li>
+                                <li><i class="fas fa-check text-success me-1"></i> Prohibidas las tablas</li>
+                                <li><i class="fas fa-check text-success me-1"></i> Evitar etiquetas visuales</li>
+                                <li><i class="fas fa-check text-success me-1"></i> Preferir semántica HTML5</li>
+                                <li><i class="fas fa-check text-success me-1"></i> Estructura NAV > UL > LI > A</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <ul class="list-unstyled small">
+                                <li><i class="fas fa-check text-success me-1"></i> Estructura mínima requerida</li>
+                                <li><i class="fas fa-check text-success me-1"></i> Nombres de archivo válidos</li>
+                                <li><i class="fas fa-check text-success me-1"></i> Imágenes ≤ 500KB</li>
+                                <li><i class="fas fa-check text-success me-1"></i> Título del documento</li>
+                                <li><i class="fas fa-check text-success me-1"></i> Codificación UTF-8</li>
+                                <li><i class="fas fa-check text-success me-1"></i> Medios con controles</li>
+                                <li><i class="fas fa-check text-success me-1"></i> Documentos con nombres válidos</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <h6 class="mt-4">Puntaje</h6>
+                    <p class="small mb-1"><strong>Aprobación:</strong> ≥ 60 puntos</p>
+                    <p class="small mb-1"><strong>Aciertos:</strong> +1 punto por regla</p>
+                    <p class="small mb-0"><strong>Errores:</strong> -2 puntos por regla</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5.3 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Scripts del proyecto -->
+    <script src="rules.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
