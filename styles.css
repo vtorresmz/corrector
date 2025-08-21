@@ -73,25 +73,30 @@ header {
     border-radius: 4px;
 }
 
+.code-line-wrapper {
+    background: #272822; /* Fondo oscuro para monokai */
+}
+
 .code-line {
     display: flex;
     min-height: 20px;
-    border-bottom: 1px solid rgba(0,0,0,0.05);
+    border-bottom: 1px solid rgba(255,255,255,0.1);
 }
 
 .code-line:hover {
-    background-color: rgba(0,0,0,0.02);
+    background-color: rgba(255,255,255,0.05);
 }
 
 .line-number {
     flex: 0 0 60px;
-    background-color: var(--line-number-bg);
-    color: #6c757d;
+    background-color: #383830;
+    color: #75715e;
     text-align: center;
     padding: 2px 8px;
-    border-right: 1px solid var(--border-color);
+    border-right: 1px solid #49483e;
     user-select: none;
     font-size: 11px;
+    font-weight: normal;
 }
 
 .line-content {
@@ -99,27 +104,79 @@ header {
     padding: 2px 12px;
     white-space: pre-wrap;
     word-break: break-word;
+    color: #f8f8f2;
+    background: #272822;
 }
 
 .error-line {
-    background-color: var(--error-highlight) !important;
-    border-left: 3px solid var(--danger-color);
+    background-color: rgba(249, 38, 114, 0.2) !important;
+    border-left: 3px solid #f92672;
 }
 
 .error-line .line-number {
-    background-color: var(--danger-color);
+    background-color: #f92672;
     color: white;
     font-weight: bold;
 }
 
+.error-line .line-content {
+    background-color: rgba(249, 38, 114, 0.1);
+}
+
 .success-line {
-    background-color: var(--success-highlight) !important;
-    border-left: 3px solid var(--success-color);
+    background-color: rgba(166, 226, 46, 0.2) !important;
+    border-left: 3px solid #a6e22e;
 }
 
 .success-line .line-number {
-    background-color: var(--success-color);
-    color: white;
+    background-color: #a6e22e;
+    color: #272822;
+    font-weight: bold;
+}
+
+.success-line .line-content {
+    background-color: rgba(166, 226, 46, 0.1);
+}
+
+/* Estilos para Highlight.js monokai */
+.code-viewer pre {
+    margin: 0;
+    padding: 0;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+}
+
+.code-viewer code {
+    background: transparent;
+    padding: 0;
+    color: #f8f8f2;
+}
+
+/* Override de algunos estilos de highlight.js para mejor integración */
+.code-viewer .hljs {
+    background: transparent !important;
+    color: #f8f8f2;
+}
+
+.code-viewer .hljs-tag {
+    color: #f92672;
+}
+
+.code-viewer .hljs-name {
+    color: #f92672;
+}
+
+.code-viewer .hljs-attr {
+    color: #a6e22e;
+}
+
+.code-viewer .hljs-string {
+    color: #e6db74;
+}
+
+.code-viewer .hljs-comment {
+    color: #75715e;
 }
 
 /* Resaltado de errores en el código */

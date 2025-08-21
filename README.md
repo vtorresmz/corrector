@@ -15,25 +15,28 @@ Un validador de código HTML/CSS diseñado específicamente para la asignatura "
 
 ## 📋 Reglas de Validación
 
-### Errores Críticos (-2 puntos)
-1. **Único H1**: Solo puede haber un elemento `<h1>` por documento
-2. **LI dentro de UL**: Todos los `<li>` deben estar dentro de `<ul>`
-3. **href solo en A**: El atributo `href` solo en elementos `<a>`
-4. **src solo en IMG**: El atributo `src` solo en elementos `<img>`
-5. **Botones en formularios**: Los `<button>` deben estar dentro de `<form>`
-6. **Sin tablas**: Prohibido usar `<table>`, `<thead>`, `<tbody>`, `<tfoot>`, `<tr>`, `<td>`, `<th>`
-7. **Sin etiquetas visuales**: Prohibido `<u>`, `<b>`, `<i>`
-8. **Estructura mínima**: Debe contener `<header>`, `<nav>`, `<main>`, `<footer>`
-9. **Estructura NAV**: Los elementos `<nav>` deben seguir la estructura `nav > ul > li > a`
-10. **Título del documento**: Debe existir `<title>` en `<head>`
-11. **Codificación UTF-8**: Debe tener `<meta charset="UTF-8">`
-12. **Controles multimedia**: `<audio>` y `<video>` deben tener `controls`, `<video>` debe tener `muted`
+### Errores Críticos (-2 a -5 puntos)
+1. **Estructura HTML básica**: DOCTYPE, html, head, body correctos (-5 pts)
+2. **Etiquetas cerradas**: Todas las etiquetas deben cerrarse correctamente (-3 pts)
+3. **Único H1**: Solo puede haber un elemento `<h1>` por documento
+4. **LI dentro de UL**: Todos los `<li>` deben estar dentro de `<ul>`
+5. **href solo en A**: El atributo `href` solo en elementos `<a>`
+6. **src solo en IMG**: El atributo `src` solo en elementos `<img>`
+7. **Botones en formularios**: Los `<button>` deben estar dentro de `<form>`
+8. **Sin tablas**: Prohibido usar `<table>`, `<thead>`, `<tbody>`, `<tfoot>`, `<tr>`, `<td>`, `<th>`
+9. **Sin etiquetas visuales**: Prohibido `<u>`, `<b>`, `<i>`
+10. **Estructura mínima**: Debe contener `<header>`, `<nav>`, `<main>`, `<footer>`
+11. **Estructura NAV**: Los elementos `<nav>` deben seguir la estructura `nav > ul > li > a`
+12. **Título del documento**: Debe existir `<title>` en `<head>`
+13. **Codificación UTF-8**: Debe tener `<meta charset="UTF-8">`
+14. **Controles multimedia**: `<audio>` y `<video>` deben tener `controls`, `<video>` debe tener `muted`
 
 ### Advertencias (-1 punto)
-13. **Etiquetas semánticas**: Preferir elementos semánticos vs. `<div>`/`<span>`
-14. **Nombres de archivo**: Solo minúsculas, guiones, sin espacios ni caracteres especiales
-15. **Tamaño de imágenes**: Máximo 500KB por imagen
-16. **Nombres de documentos**: Mismas reglas para archivos HTML referenciados
+15. **Etiquetas semánticas**: Preferir elementos semánticos vs. `<div>`/`<span>`
+16. **Nombres de archivo**: Solo minúsculas, guiones, sin espacios ni caracteres especiales
+17. **Tamaño de imágenes**: Máximo 500KB por imagen
+18. **Nombres de documentos**: Mismas reglas para archivos HTML referenciados
+19. **Meta viewport**: Debe incluir viewport responsive
 
 ## 🎯 Sistema de Puntaje
 

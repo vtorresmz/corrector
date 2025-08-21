@@ -113,20 +113,29 @@ async function analyzeCode() {
     setLoadingState(true);
     
     try {
+        // Validaciones previas antes del parsing
+        const preValidationIssues = validateBasicStructure(code);
+        
         // Parsear HTML
         const parser = new DOMParser();
         const doc = parser.parseFromString(code, 'text/html');
         
-        // Verificar errores de parsing
+        // Verificar errores de parsing más estrictos
         const parserErrors = doc.querySelectorAll('parsererror');
         if (parserErrors.length > 0) {
-            showAlert('El código HTML contiene errores de sintaxis que impiden el análisis.', 'danger');
+            showAlert('El código HTML contiene errores de sintaxis graves que impiden el análisis.', 'danger');
             setLoadingState(false);
             return;
         }
         
         // Ejecutar validaciones
         const results = await runValidations(doc, code);
+        
+        // Agregar issues de pre-validación si los hay
+        if (preValidationIssues.length > 0) {
+            results.unshift(...preValidationIssues);
+        }
+        
         currentResults = results;
         
         // Mostrar resultados
@@ -141,6 +150,51 @@ async function analyzeCode() {
     } finally {
         setLoadingState(false);
     }
+}
+
+// Validar estructura básica antes del parsing
+function validateBasicStructure(code) {
+    const issues = [];
+    
+    // Verificar casos críticos de HTML malformado
+    const criticalPatterns = [
+        {
+            pattern: /<h[1-6][^>]*>\s*<h[1-6][^>]*>/gi,
+            message: 'Etiquetas de encabezado anidadas o mal cerradas',
+            ruleId: 'malformed-headers'
+        },
+        {
+            pattern: /<(div|p|span)[^>]*>\s*<\1[^>]*>/gi,
+            message: 'Etiquetas duplicadas o mal anidadas',
+            ruleId: 'malformed-nesting'
+        },
+        {
+            pattern: /<\/[^>]+>\s*<\/[^>]+>/gi,
+            message: 'Múltiples etiquetas de cierre consecutivas',
+            ruleId: 'malformed-closing'
+        }
+    ];
+    
+    criticalPatterns.forEach(({ pattern, message, ruleId }) => {
+        if (pattern.test(code)) {
+            issues.push({
+                ruleId: ruleId,
+                rule: {
+                    id: ruleId,
+                    descripcion: 'HTML malformado detectado',
+                    tipo: 'error',
+                    puntaje_ok: 0,
+                    puntaje_error: -5
+                },
+                passed: false,
+                matches: [],
+                message: `Error crítico: ${message}`,
+                suggestion: 'Revisa la estructura HTML y asegúrate de que las etiquetas estén correctamente cerradas y anidadas.'
+            });
+        }
+    });
+    
+    return issues;
 }
 
 // Ejecutar todas las validaciones
@@ -409,28 +463,73 @@ function highlightInCode(result, resultIndex) {
 function displayHighlightedCode(code, results) {
     if (!elements.highlightedCode) return;
     
-    const lines = code.split('\n');
+    // Limpiar contenido previo
     elements.highlightedCode.innerHTML = '';
+    
+    // Crear elemento pre y code para Highlight.js
+    const preElement = document.createElement('pre');
+    const codeElement = document.createElement('code');
+    codeElement.className = 'html';
+    
+    // Escapar HTML para evitar renderizado
+    codeElement.textContent = code;
+    preElement.appendChild(codeElement);
+    
+    // Aplicar Highlight.js
+    if (typeof hljs !== 'undefined') {
+        hljs.highlightBlock(codeElement);
+    }
+    
+    elements.highlightedCode.appendChild(preElement);
+    
+    // Agregar números de línea y resaltado de errores
+    addLineNumbersAndHighlighting(elements.highlightedCode, code, results);
+    
+    elements.codeViewer.classList.remove('d-none');
+}
+
+// Agregar números de línea y resaltado
+function addLineNumbersAndHighlighting(container, code, results) {
+    const lines = code.split('\n');
+    const preElement = container.querySelector('pre');
+    const codeElement = container.querySelector('code');
+    
+    // Crear wrapper para líneas numeradas
+    const lineWrapper = document.createElement('div');
+    lineWrapper.className = 'code-line-wrapper';
+    
+    // Obtener el HTML resaltado por Highlight.js
+    const highlightedHTML = codeElement.innerHTML;
+    const highlightedLines = highlightedHTML.split('\n');
     
     lines.forEach((line, index) => {
         const lineDiv = document.createElement('div');
         lineDiv.className = 'code-line';
+        lineDiv.dataset.lineNumber = index + 1;
         
-        const lineNumber = document.createElement('div');
+        const lineNumber = document.createElement('span');
         lineNumber.className = 'line-number';
         lineNumber.textContent = index + 1;
         
-        const lineContent = document.createElement('div');
+        const lineContent = document.createElement('span');
         lineContent.className = 'line-content';
-        lineContent.textContent = line || ' '; // Espacio para líneas vacías
+        
+        // Usar línea resaltada si está disponible, sino usar texto plano
+        if (highlightedLines[index] !== undefined) {
+            lineContent.innerHTML = highlightedLines[index] || '&nbsp;';
+        } else {
+            lineContent.textContent = line || ' ';
+        }
         
         lineDiv.appendChild(lineNumber);
         lineDiv.appendChild(lineContent);
         
-        elements.highlightedCode.appendChild(lineDiv);
+        lineWrapper.appendChild(lineDiv);
     });
     
-    elements.codeViewer.classList.remove('d-none');
+    // Reemplazar contenido
+    container.innerHTML = '';
+    container.appendChild(lineWrapper);
 }
 
 // Mostrar gráfico

@@ -652,6 +652,180 @@ const VALIDATION_RULES = {
                     };
                 }
             }
+        },
+
+        htmlStructure: {
+            id: 'html-structure',
+            descripcion: 'Estructura HTML básica válida',
+            tipo: 'error',
+            puntaje_ok: 2,
+            puntaje_error: -5,
+            detectar: function(document, rawHtml) {
+                const issues = [];
+                
+                // Verificar DOCTYPE
+                if (!rawHtml.trim().toLowerCase().startsWith('<!doctype html>')) {
+                    issues.push('falta declaración DOCTYPE html');
+                }
+                
+                // Verificar elementos fundamentales
+                const html = document.querySelector('html');
+                const head = document.querySelector('head');
+                const body = document.querySelector('body');
+                
+                if (!html) {
+                    issues.push('falta elemento <html>');
+                }
+                if (!head) {
+                    issues.push('falta elemento <head>');
+                }
+                if (!body) {
+                    issues.push('falta elemento <body>');
+                }
+                
+                // Verificar que head esté antes que body
+                if (head && body) {
+                    const headIndex = Array.from(html.children).indexOf(head);
+                    const bodyIndex = Array.from(html.children).indexOf(body);
+                    if (headIndex > bodyIndex) {
+                        issues.push('<head> debe ir antes que <body>');
+                    }
+                }
+                
+                // Verificar etiquetas mal cerradas o malformadas
+                const openTags = (rawHtml.match(/<[^/>][^>]*>/g) || []).length;
+                const closeTags = (rawHtml.match(/<\/[^>]+>/g) || []).length;
+                const selfClosing = (rawHtml.match(/<[^>]*\/>/g) || []).length;
+                
+                // Tolerancia para etiquetas auto-cerrantes HTML5
+                const voidElements = ['area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'param', 'source', 'track', 'wbr'];
+                let voidCount = 0;
+                voidElements.forEach(tag => {
+                    const regex = new RegExp(`<${tag}[^>]*>`, 'gi');
+                    voidCount += (rawHtml.match(regex) || []).length;
+                });
+                
+                const expectedCloseTags = openTags - voidCount - selfClosing;
+                if (Math.abs(closeTags - expectedCloseTags) > 2) { // Tolerancia de 2
+                    issues.push('posibles etiquetas mal cerradas o malformadas');
+                }
+                
+                if (issues.length === 0) {
+                    return {
+                        passed: true,
+                        matches: [html, head, body].filter(el => el),
+                        message: 'Correcto: La estructura HTML básica es válida.',
+                        suggestion: null
+                    };
+                } else {
+                    return {
+                        passed: false,
+                        matches: [],
+                        message: `Error crítico: ${issues.join(', ')}.`,
+                        suggestion: 'Asegúrate de tener un documento HTML bien formado con <!DOCTYPE html>, <html>, <head> y <body> correctamente estructurados.'
+                    };
+                }
+            }
+        },
+
+        closedTags: {
+            id: 'closed-tags',
+            descripcion: 'Etiquetas correctamente cerradas',
+            tipo: 'error',
+            puntaje_ok: 1,
+            puntaje_error: -3,
+            detectar: function(document, rawHtml) {
+                const issues = [];
+                
+                // Verificar etiquetas comunes que deben cerrarse
+                const requiredClosedTags = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'div', 'span', 'a', 'header', 'nav', 'main', 'footer', 'section', 'article', 'aside', 'ul', 'ol', 'li'];
+                
+                requiredClosedTags.forEach(tag => {
+                    const openRegex = new RegExp(`<${tag}[^>]*>`, 'gi');
+                    const closeRegex = new RegExp(`</${tag}>`, 'gi');
+                    
+                    const openMatches = rawHtml.match(openRegex) || [];
+                    const closeMatches = rawHtml.match(closeRegex) || [];
+                    
+                    // Filtrar etiquetas auto-cerrantes
+                    const selfClosingMatches = rawHtml.match(new RegExp(`<${tag}[^>]*/>`, 'gi')) || [];
+                    const actualOpenTags = openMatches.length - selfClosingMatches.length;
+                    
+                    if (actualOpenTags !== closeMatches.length) {
+                        issues.push(`<${tag}>: ${actualOpenTags} abiertas, ${closeMatches.length} cerradas`);
+                    }
+                });
+                
+                // Verificar etiquetas obviamente mal cerradas en el HTML
+                const badClosingPatterns = [
+                    /<h1[^>]*><h1[^>]*>/gi, // h1 dobles
+                    /<\/[^>]+>[^<]*<\/[^>]+>/gi // posibles cierres duplicados
+                ];
+                
+                let malformedFound = false;
+                badClosingPatterns.forEach(pattern => {
+                    if (pattern.test(rawHtml)) {
+                        malformedFound = true;
+                    }
+                });
+                
+                if (malformedFound) {
+                    issues.push('patrones de etiquetas malformadas detectados');
+                }
+                
+                if (issues.length === 0) {
+                    return {
+                        passed: true,
+                        matches: [],
+                        message: 'Correcto: Las etiquetas están correctamente cerradas.',
+                        suggestion: null
+                    };
+                } else {
+                    return {
+                        passed: false,
+                        matches: [],
+                        message: `Error: Etiquetas mal cerradas - ${issues.slice(0, 3).join(', ')}${issues.length > 3 ? '...' : ''}.`,
+                        suggestion: 'Revisa que cada etiqueta de apertura tenga su correspondiente etiqueta de cierre. Usa un editor con resaltado de sintaxis para detectar errores.'
+                    };
+                }
+            }
+        },
+
+        validViewport: {
+            id: 'valid-viewport',
+            descripcion: 'Meta viewport para responsive',
+            tipo: 'warning',
+            puntaje_ok: 1,
+            puntaje_error: -1,
+            detectar: function(document, rawHtml) {
+                const viewport = document.querySelector('meta[name="viewport"]');
+                
+                if (!viewport) {
+                    return {
+                        passed: false,
+                        matches: [],
+                        message: 'Error: Falta la etiqueta meta viewport.',
+                        suggestion: 'Agrega <meta name="viewport" content="width=device-width, initial-scale=1.0"> en el <head> para diseño responsive.'
+                    };
+                } else {
+                    const content = viewport.getAttribute('content');
+                    if (!content || !content.includes('width=device-width')) {
+                        return {
+                            passed: false,
+                            matches: [viewport],
+                            message: 'Error: Meta viewport no tiene configuración responsive.',
+                            suggestion: 'Usa content="width=device-width, initial-scale=1.0" en la meta viewport.'
+                        };
+                    } else {
+                        return {
+                            passed: true,
+                            matches: [viewport],
+                            message: 'Correcto: Meta viewport configurada para responsive.',
+                            suggestion: null
+                        };
+                    }
+                }
+            }
         }
     }
 };
